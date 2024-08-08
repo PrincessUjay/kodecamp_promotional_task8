@@ -222,18 +222,79 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
       git commit -m "Add Kubernetes manifests"
       git push 
 
+### Step 2: Set Up GitHub Actions
+#### 2.1 Create a GitHub Actions Workflow
 
+* In your repository, create a directory .github/workflows:
 
+      mkdir -p .github/workflows
+* Create a file named deploy.yml inside this directory 
 
+      cd .github/workflows
+      touch deploy.yml
 
+* add the following content to the deploy.yml file
 
+      name: Deploy to Minikube
 
+      on:
+        push:
+          branches:
+            - main
 
+      jobs:
+        build-and-deploy:
+          runs-on: ubuntu-latest
 
-### Steps to Deploy
-1. Setup AWS CLI Profile
+          steps:
+          - name: Checkout code
+            uses: actions/checkout@v2
 
-To connect your AWS CLI to your AWS console for the user PrincessKodeCamp and configure it so that Terraform can create a VPC, follow these steps:
+          - name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v2
+
+          - name: Log in to Docker Hub
+            uses: docker/login-action@v2
+            with:
+              username: ${{ secrets.DOCKER_USERNAME }}
+              password: ${{ secrets.DOCKER_PASSWORD }}
+
+          - name: Build and Push Docker image
+            uses: docker/build-push-action@v3
+            with:
+              context: .
+              push: true
+              tags: princessujay/myfirstpythonapp:0.0.2.RELEASE
+
+          - name: SSH to EC2 and Deploy
+            uses: appleboy/ssh-action@v0.1.6
+            with:
+              host: ${{ secrets.EC2_PUBLIC_IP }}
+              username: ${{ secrets.EC2_USER }}
+              key: ${{ secrets.EC2_SSH_KEY }}
+              script: |
+                kubectl apply -f k8s/deployment.yaml
+                kubectl apply -f k8s/service.yaml
+
+#### 2.2 Add your secrets to GitHub:
+* Go to your repository's "Settings".
+Under "Secrets and variables", select "Actions".
+* Add the following secrets:
+      DOCKER_USERNAME: Your Docker Hub username.
+      DOCKER_PASSWORD: Your Docker Hub password.
+      EC2_PUBLIC_IP: The public IP address of your EC2 instance.
+      EC2_USER: The username for your EC2 instance (e.g., ubuntu).
+      EC2_SSH_KEY: Your EC2 instance's private SSH key.
+
+#### 2.3 Add, commit, and push the workflow file:
+
+      git add .
+      git commit -m "Add GitHub Actions workflow"
+      git push
+
+### Step 3: Set Up Terraform for EC2 and Minikube
+#### 3.1 Setup AWS CLI Profile
+To connect your AWS CLI to your AWS console for the user 'PrincessKodeCamp' and configure it so that Terraform can create a VPC, follow these steps:
 * Create an IAM User
   - Go to the IAM section of the AWS Management Console.
   - Create a new user (if not already created) and name it eg PrincessKodeCamp.
@@ -252,8 +313,7 @@ To connect your AWS CLI to your AWS console for the user PrincessKodeCamp and co
         Default region name [None]: eu-west-1
         Default output format [None]: json  # or your preferred output format
 
-2. Verify Configuration
-   
+* Verify Configuration
 To verify that your AWS CLI is configured correctly, you can run a simple command like listing your current VPCs:
 
     aws ec2 describe-vpcs
@@ -261,10 +321,12 @@ To verify that your AWS CLI is configured correctly, you can run a simple comman
 If the command returns a list of VPCs or an empty list, your configuration is correct. You can also list your profiles to verify by running:
   
     aws configure list-profiles
-
-### Create Terraform Configuration Files
-#### Directory Structure
-Create a directory for your project (terraform) and set up the following structure:
+    
+#### 3.2 Create Terraform Directory in the repository
+    mkdir terraform
+    cd terraform
+##### Terraform Directory Structure:
+Create and set up the following directory structure for it:
 
      ├── terraform
 
@@ -329,7 +391,7 @@ Create a directory for your project (terraform) and set up the following structu
 
                 └── variables.tf
 
-#### Write the Terraform Configuration
+#### Write the Terraform Configuration within the createf files
 terraform/main.tf
 
     provider "aws" {
@@ -420,6 +482,10 @@ terraform/variables.tf
 
 terraform/modules/ec2_instance/main.tf
 
+    provider "aws" {
+      region = var.region
+    }
+    
     data "aws_key_pair" "key_pair" {
       key_name           = "KCVPCkeypair"
       include_public_key = true
@@ -433,8 +499,7 @@ terraform/modules/ec2_instance/main.tf
       associate_public_ip_address = true
       key_name                    = data.aws_key_pair.key_pair.key_name
     
-    
-      user_data = file("${path.module}/scripts/scripts/install_nginx.sh")
+      user_data = file("${path.module}/scripts/install_nginx.sh")
     
       tags = {
         Name = "PublicInstance"
@@ -448,25 +513,79 @@ terraform/modules/ec2_instance/main.tf
       security_groups    = [var.private_sg_id]
       key_name                    = data.aws_key_pair.key_pair.key_name
     
-      user_data = file("${path.module}/scripts/scripts/install_postgresql.sh")
+      user_data = file("${path.module}/scripts/install_postgresql.sh")
     
       tags = {
         Name = "PrivateInstance"
       }
     }
-        
+    
+    resource "aws_instance" "minikube" {
+      ami           = var.ami
+      instance_type = var.instance_type
+      subnet_id     = var.minikube_subnet_id
+      key_name      = data.aws_key_pair.key_pair.key_name
+
+      tags = {
+        Name = "MinikubeInstance"
+     }
+    
+     provisioner "file" {
+     source      = "${path.module}/scripts/install_minikube.sh"
+     destination = "/tmp/install_minikube.sh"
+     }
+
+     provisioner "remote-exec" {
+       inline = [
+      "chmod +x /tmp/install_minikube.sh",
+      "/tmp/install_minikube.sh"
+       ]
+     }
+
+     connection {
+       type        = "ssh"
+       user        = "ubuntu"
+       private_key = file(var.ssh_key_path)
+       host        = self.public_ip
+     }
+    }    
 terraform/modules/ec2_instance/outputs.tf
 
     output "public_instance_id" {
       value = aws_instance.public_instance.id
     }
     
+    output "public_instance_public_ip" {
+      description = "The public IP address of the public EC2 instance"
+      value       = aws_instance.public_instance.public_ip
+    }
+    
     output "private_instance_id" {
       value = aws_instance.private_instance.id
     }
+    
+    output "private_instance_private_ip" {
+      description = "The private IP address of the private EC2 instance"
+      value       = aws_instance.private_instance.private_ip
+    }
 
+    output "minikube_instance_id" {
+      description = "The ID of the Minikube EC2 instance"
+      value       = aws_instance.minikube.id
+    }
+
+    output "minikube_instance_public_ip" {
+      description = "The public IP address of the Minikube EC2 instance"
+      value       = aws_instance.minikube.public_ip
+    }
+    
 terraform/modules/ec2_instance/variables.tf
-
+      
+    variable "region" {
+      description = "The AWS region to create resources in."
+      type        = string
+    }
+    
     variable "ami" {
       description = "AMI ID to use for the instances"
       type        = string
@@ -496,8 +615,29 @@ terraform/modules/ec2_instance/variables.tf
       description = "ID of the private security group"
       type        = string
     }
+    
+    variable "minikube_subnet_id" {
+      description = "The ID of the subnet for the Minikube instance."
+      type        = string
+    }
 
-terraform/modules/ec2_instance/scripts/scripts/install_nginx.sh
+    variable "ssh_key_path" {
+      description = "The path to the SSH key to use for connecting to the instance."
+      type        = string
+    }
+
+terraform/modules/ec2_instance/scripts/install_minikube.sh
+
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get install -y docker.io
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    sudo install minikube-linux-amd64 /usr/local/bin/minikube
+    minikube start --driver=docker
+    kubectl apply -f /kodecamp_promotional_task8/k8s/deployment.yaml
+    kubectl apply -f /kodecamp_promotional_task8/k8s/service.yaml
+    
+terraform/modules/ec2_instance/scripts/install_nginx.sh
 
     #!/bin/bash
     sudo apt-get update
@@ -505,7 +645,7 @@ terraform/modules/ec2_instance/scripts/scripts/install_nginx.sh
     sudo systemctl start nginx
     sudo systemctl enable nginx
 
-terraform/modules/ec2_instance/scripts/scripts/install_postgresql.sh
+terraform/modules/ec2_instance/scripts/install_postgresql.sh
 
     #!/bin/bash
     sudo apt-get update
@@ -777,7 +917,8 @@ terraform/modules/vpc/variables.tf
 
 ### Initialize Terraform
 * Navigate to the root directory (terraform) and initialize Terraform 
-(Run the command terraform init): ![Screenshot 2024-07-23 172830](https://github.com/user-attachments/assets/ee0ebd2d-cad4-43ae-b3eb-1f10a88d6b8c) ![Screenshot (80)](https://github.com/user-attachments/assets/52146bea-e1ab-45df-bce4-2d95e754e139)
+(Run the command terraform init):
+
 ### Check if the configuration is valid 
 * Run terraform plan if the configuration is valid.
 * Enter your keypair and follow the prompt to input 'yes'.
