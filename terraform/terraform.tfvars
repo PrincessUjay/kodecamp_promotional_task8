@@ -11,13 +11,7 @@ instance_type = "t2.micro"
 key_name = "KCVPCkeypair1" # Ensure this key pair exists in your AWS account
 
 # Path to the SSH private key file
-ssh_key_path = "C:/Users/HP/.ssh/KCVPCkeypair1.pem" # Update with the actual path to your SSH key
-
-# VPC CIDR block
-vpc_cidr = "10.0.0.0/16"
-
-# Availability zone for the public subnet
-public_subnet_az = "eu-west-1a"
+ssh_key_path = "C:/Users/HP/.ssh/KCVPCkeypair1.pem" # Update with the actual path to your SSH 
 
 # Public subnet ID (leave blank if you're creating a new subnet)
 public_subnet_id = ""
