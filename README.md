@@ -10,12 +10,57 @@ This repository contains a sample project to demonstrate setting up a CI/CD pipe
 - An SSH key pair for accessing the EC2 instance
 - Git installed on your local machine
 
+## Repository & Directory Structure
 
+kodecamp_promotional_task8
+
+       ├── README.md
+       ├── app.py
+       ├── Dockerfile
+       ├── k8s
+          ├── deployment.yaml
+          └── service.yaml
+       ├── terraform 
+          ├── main.tf
+          ├── outputs.tf
+          ├── variables.tf
+          └── modules
+             ├── ec2_instance
+                 ├── main.tf
+                 ├── outputs.tf
+                 ├── scripts
+                     └── install_nginx.sh
+                     └── install_postgresql.sh
+                     └── install_minikube.sh
+                 └── variables.tf
+             ├── nat_gateway
+                 ├── main.tf
+                 ├── outputs.tf
+                 └── variables.tf
+             ├── route_table
+                 ├── main.tf
+                 ├── outputs.tf
+                 └── variables.tf
+             ├── security_group
+                 ├── main.tf
+                 ├── outputs.tf
+                 └── variables.tf
+             ├── subnet
+                 ├── main.tf
+                 ├── outputs.tf
+                 └── variables.tf
+             ├── vpc
+                 ├── main.tf
+                 ├── outputs.tf
+                 └── variables.tf
+       ├── .github
+          └── workflows
+             └── deploy.yml
 
 ## Steps
 
 ### Step 1: Prepare the Code Repository
-#### 1.1 Create a Repository on GitHub
+#### 1.1: Create a Repository on GitHub
 1. Go to GitHub(https://github.com/).
 2. Click the "+" icon in the top right corner and select "New repository".
 3. Enter a repository name (e.g., `kodecamp_promotional_task8`).
@@ -23,11 +68,159 @@ This repository contains a sample project to demonstrate setting up a CI/CD pipe
 5. Add a readme file (You will edit this as you go with the steps you took) 
 6. Click "Create repository".
 
-#### 1.2 Clone Repository to Local machine 
+#### 1.2: Clone Repository to Local machine 
 1. Clone the repository to your local machine through your Terminal:
 
         git clone https://github.com/PrincessUjay/kodecamp_promotional_task8.git
         cd kodecamp_promotional_task8
+
+2. Run the following commands to establish a connection with your GitHub repository 
+
+         git remote -v
+         git remote set-url origin git@github.com:PrincessUjay/kodecamp_promotional_task8.git
+
+         #generate ssh key if needed then add it the your GitHub ssh keys 
+
+                  ssh-keygen -t ed25519 -C "your_email@gmail.com"
+                  eval "$(ssh-agent -s)"
+                  ssh-add ~/.ssh/id_ed25519
+                  cat ~/.ssh/id_ed25519.pub
+
+         #Test the ssh Connection
+
+                  ssh -T git@github.com
+
+
+#### 1.3: Add Your Application Code: Create a Simple Web Application
+
+Create a file named app.py 
+    
+       touch app.py
+* Write the following content in the file:
+
+      from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+      class MyHandler(SimpleHTTPRequestHandler):
+          def do_GET(self):
+              self.send_response(200)
+              self.send_header("Content-type", "text/html")
+              self.end_headers()
+              self.wfile.write(b"Hello, Welcome to KodeCamp DevOps Bootcamp!")
+
+      def run(server_class=HTTPServer, handler_class=MyHandler):
+          server_address = ('', 8000)
+          httpd = server_class(server_address, handler_class)
+          print("Starting httpd server on port 8000...")
+          httpd.serve_forever()
+
+      if __name__ == "__main__":
+          run()
+
+#### 1.4: Dockerize the Application
+
+* Create a Dockerfile
+
+       touch dockerfile
+* Write the following content in the file:
+      
+      # Base image from the official Python repository
+      FROM python:3.9-slim
+
+      # Set the working directory within the container
+      WORKDIR /app
+
+      # Copy all application files
+      COPY app.py .
+
+      # Expose port 8000
+      EXPOSE 8000
+
+      # Command to run the application
+      CMD ["python", "app.py"]
+
+#### 1.5: Add and commit your code:
+
+      git add .
+      git commit -m "Initial commit with application code and Dockerfile"
+      git push
+
+#### 1.6: Build the Docker Image
+* On the terminal run:
+
+      docker build -t myfirstpythonapp:0.0.2.RELEASE .
+* Run the Docker Container Locally
+
+      docker container run -d -p 8000:8000 myfirstpythonapp:0.0.2 can.RELEASE
+
+* Test the Application
+Open a browser and go to http://localhost:8000 to see the message "Hello, Welcome to KodeCamp DevOps Bootcamp!".
+
+Or
+
+Run this command to see the details of the container
+
+      docker container ls 
+#### 1.7: Tag and Push the Docker Image to Docker Hub
+* Log in to Docker Hub
+
+          docker login
+N/b: you’ll be prompted to input your login credentials or it’ll authenticate with existing credentials and then show Login Succeeded. 
+
+* tag the image
+      docker tag myfirstpythonapp:0.0.2.RELEASE princessujay/myfirstpythonapp:0.0.2.RELEASE
+   
+   * Push the image to Docker Hub
+
+         docker push princessujay/myfirstpythonapp:0.0.2.RELEASE
+
+#### 1.8: Create kubernetes Manifests 
+* In your repository, create a directory called ‘k8s’ and  then enter the directory 
+      
+       mkdir k8s
+       cd k8s
+#### 1.9: Inside k8s, create these 2 files with the following contents
+* deployment.yaml
+
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: myfirstpythonapp
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: myfirstpythonapp
+        template:
+          metadata:
+            labels:
+              app: myfirstpythonapp
+          spec:
+            containers:
+            - name: myfirstpythonapp
+              image: princessujay/myfirstpythonapp:0.0.2.RELEASE
+              ports:
+              - containerPort: 8000
+
+* service.yaml:
+
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: myfirstpythonapp-service
+      spec:
+        type: LoadBalancer
+        selector:
+           app: myfirstpythonapp
+        ports:
+          - protocol: TCP
+            port: 80
+            targetPort: 8000
+
+#### 1.10: Add, commit, and push your Kubernetes manifests:
+
+      git add .
+      git commit -m "Add Kubernetes manifests"
+      git push 
 
 
 
