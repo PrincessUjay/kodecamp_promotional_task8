@@ -203,7 +203,7 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
 
 * service.yaml:
 
-      apiVersion: v1
+      apiVersion: v2
       kind: Service
       metadata:
         name: myfirstpythonapp-service
