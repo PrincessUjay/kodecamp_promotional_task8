@@ -38,6 +38,7 @@ resource "aws_instance" "private_instance" {
 
 resource "aws_instance" "minikube" {
    ami           = var.ami
+   region        = "eu-west-1"
    instance_type = var.instance_type
    subnet_id     = var.minikube_subnet_id
    key_name      = data.aws_key_pair.key_pair.key_name
