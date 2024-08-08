@@ -29,9 +29,9 @@ kodecamp_promotional_task8
                  ├── main.tf
                  ├── outputs.tf
                  ├── scripts
+                     └── install_minikube.sh
                      └── install_nginx.sh
                      └── install_postgresql.sh
-                     └── install_minikube.sh
                  └── variables.tf
              ├── nat_gateway
                  ├── main.tf
@@ -181,7 +181,7 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
 #### 1.9: Inside k8s, create these 2 files with the following contents
 * deployment.yaml
 
-      apiVersion: apps/v1
+      apiVersion: apps/v2
       kind: Deployment
       metadata:
         name: myfirstpythonapp
@@ -208,7 +208,7 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
       metadata:
         name: myfirstpythonapp-service
       spec:
-        type: LoadBalancer
+        type: ClusterIP
         selector:
            app: myfirstpythonapp
         ports:
@@ -235,7 +235,7 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
 
 * add the following content to the deploy.yml file
 
-      name: Deploy to Minikube
+      name: CI/CD Pipeline
 
       on:
         push:
@@ -301,7 +301,7 @@ To connect your AWS CLI to your AWS console for the user 'PrincessKodeCamp' and 
   - Grant the user programmatic access by selecting the checkbox for Access key - Programmatic access.
   - Attach the necessary policies for VPC creation. For simplicity, you can attach the AdministratorAccess policy.
 * Generate Access Keys and a keypair
-  - After creating the user, you'll be given an Access Key ID and a Secret Access Key as well as a keypair. Note these down as you'll need them to configure the AWS CLI.
+  - After creating the user, you'll be given an Access Key ID, a Secret Access Key, and a keypair. Please note these down as you'll need them to configure the AWS CLI.
 * Configure AWS CLI
   - Open your terminal or command prompt.
   - Run the following command to configure the AWS CLI:
@@ -329,69 +329,40 @@ If the command returns a list of VPCs or an empty list, your configuration is co
 Create and set up the following directory structure for it:
 
      ├── terraform
-
          └── main.tf
-
          └── outputs.tf
-
          └── variables.tf
-
          └── modules
-
             ├── ec2_instance
-
                 └── scripts
-
+                   ├── install_minikube.sh
                    ├── install_nginx.sh
-
                    ├── install_postgresql.sh
-
                 └── main.tf
-
                 └── outputs.tf
-
                 └── variables.tf
-
             ├── nat_gateway
-
                 └── main.tf
-
                 └── outputs.tf
-
                 └── variables.tf
-
             ├── route_table
-
                 └── main.tf
-
                 └── outputs.tf
-
                 └── variables.tf
-
             ├── security_group
-
                 └── main.tf
-
                 └── outputs.tf
-
                 └── variables.tf
-
             ├── subnet
-
                 └── main.tf
-
                 └── outputs.tf
-
                 └── variables.tf
             ├── vpc
-
                 └── main.tf
-
                 └── outputs.tf
-
                 └── variables.tf
 
-#### Write the Terraform Configuration within the createf files
+#### Write the Terraform Configuration within the created files
 terraform/main.tf
 
     provider "aws" {
@@ -1028,7 +999,15 @@ kubectl config use-context minikube
       EC2_PUBLIC_IP: The public IP address of your EC2 instance.
       EC2_USER: The username for your EC2 instance (e.g., ubuntu).
       EC2_SSH_KEY: Your EC2 instance's private SSH key.
+* Add a .gitignore file
 
+      touch .gitignore
+* Add the following content to it to enable it to ignore these large and confidential files
+
+      terraform.tfstate
+      terraform.tfstate.backup
+      *.terraform
+      *.tfstate
 * Add and commit to GitHub 
       git add .
       git commit -m "Add GitHub Actions workflow"
