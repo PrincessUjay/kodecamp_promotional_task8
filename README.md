@@ -551,26 +551,26 @@ terraform/modules/ec2_instance/main.tf
 
       tags = {
         Name = "MinikubeInstance"
-     }
+      }
     
-     provisioner "file" {
-     source      = "${path.module}/scripts/install_minikube.sh"
-     destination = "/tmp/install_minikube.sh"
-     }
+      provisioner "file" {
+      source      = "${path.module}/scripts/install_minikube.sh"
+      destination = "/tmp/install_minikube.sh"
+      }
 
-     provisioner "remote-exec" {
-       inline = [
+      provisioner "remote-exec" {
+        inline = [
       "chmod +x /tmp/install_minikube.sh",
       "/tmp/install_minikube.sh"
-       ]
-     }
+        ]
+      }
 
-     connection {
-       type        = "ssh"
-       user        = "ubuntu"
-       private_key = file(var.ssh_key_path)
-       host        = self.public_ip
-     }
+      connection {
+        type        = "ssh"
+        user        = "ubuntu"
+        private_key = file(var.ssh_key_path)
+        host        = self.public_ip
+      }
     }    
 terraform/modules/ec2_instance/outputs.tf
 
