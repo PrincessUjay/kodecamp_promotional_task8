@@ -443,6 +443,8 @@ terraform/main.tf
       public_sg_id      = module.security_group.public_sg_id
       private_sg_id     = module.security_group.private_sg_id
       key_name           = var.key_name
+      minikube_subnet_id = module.subnet.public_subnet_id # Assuming Minikube is in the public subnet
+      ssh_key_path      = var.ssh_key_path
     }
       
 terraform/outputs.tf
@@ -466,6 +468,16 @@ terraform/outputs.tf
     output "private_instance_id" {
       value = module.ec2_instance.private_instance_id
     }
+
+    output "minikube_instance_id" {
+      description = "The ID of the Minikube EC2 instance"
+      value       = module.ec2_instance.minikube_instance_id
+    }
+
+    output "minikube_instance_public_ip" {
+      description = "The public IP address of the Minikube EC2 instance"
+      value       = module.ec2_instance.minikube_instance_public_ip
+    }
     
 terraform/variables.tf
 
@@ -475,6 +487,46 @@ terraform/variables.tf
       default     = "eu-west-1"
     }
     
+    variable "ami" {
+      description = "The AMI to use for the instances."
+      type        = string
+    }
+
+    variable "instance_type" {
+      description = "The type of instance to use."
+      type        = string
+    }
+
+    variable "public_subnet_id" {
+      description = "The ID of the public subnet."
+      type        = string
+    }
+
+    variable "private_subnet_id" {
+      description = "The ID of the private subnet."
+      type        = string
+    }
+
+    variable "public_sg_id" {
+      description = "The ID of the public security group."
+      type        = string
+    }
+
+    variable "private_sg_id" {
+      description = "The ID of the private security group."
+      type        = string
+    }
+
+    variable "minikube_subnet_id" {
+      description = "The ID of the subnet for the Minikube instance."
+      type        = string
+    }
+
+    variable "ssh_key_path" {
+      description = "The path to the SSH key to use for connecting to the instance."
+      type        = string
+    }
+
     variable "key_name" {
       description = "Name of the SSH key pair for accessing EC2 instances"
       type        = string
