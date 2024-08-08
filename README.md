@@ -235,7 +235,7 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
 
 * add the following content to the deploy.yml file
 
-      name: CI/CD Pipeline
+      name: Deploy to Minikube
 
       on:
         push:
