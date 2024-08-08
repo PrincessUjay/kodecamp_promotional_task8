@@ -511,7 +511,7 @@ terraform/modules/ec2_instance/main.tf
     }
     
     data "aws_key_pair" "key_pair" {
-      key_name           = "KCVPCkeypair"
+      key_name           = "KCVPCkeypair1"
       include_public_key = true
     }
     
