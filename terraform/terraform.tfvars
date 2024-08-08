@@ -16,12 +16,6 @@ ssh_key_path = "C:/Users/HP/.ssh/KCVPCkeypair1.pem" # Update with the actual pat
 # VPC CIDR block
 vpc_cidr = "10.0.0.0/16"
 
-# Public subnet CIDR block
-public_subnet_cidr = "10.0.1.0/24"
-
-# Private subnet CIDR block
-private_subnet_cidr = "10.0.2.0/24"
-
 # Availability zone for the public subnet
 public_subnet_az = "eu-west-1a"
 
