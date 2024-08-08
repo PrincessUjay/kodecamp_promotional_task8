@@ -37,31 +37,31 @@ resource "aws_instance" "private_instance" {
 }
 
 resource "aws_instance" "minikube" {
-  ami           = var.ami
-  instance_type = var.instance_type
-  subnet_id     = var.minikube_subnet_id
-  key_name      = data.aws_key_pair.key_pair.key_name
+   ami           = var.ami
+   instance_type = var.instance_type
+   subnet_id     = var.minikube_subnet_id
+   key_name      = data.aws_key_pair.key_pair.key_name
 
-  tags = {
-    Name = "MinikubeInstance"
- }
+   tags = {
+     Name = "MinikubeInstance"
+   }
 
- provisioner "file" {
- source      = "${path.module}/scripts/install_minikube.sh"
- destination = "/tmp/install_minikube.sh"
- }
+  provisioner "file" {
+  source      = "${path.module}/scripts/install_minikube.sh"
+  destination = "/tmp/install_minikube.sh"
+  }
 
- provisioner "remote-exec" {
-   inline = [
+  provisioner "remote-exec" {
+    inline = [
   "chmod +x /tmp/install_minikube.sh",
   "/tmp/install_minikube.sh"
-   ]
- }
+    ]
+  }
 
- connection {
-   type        = "ssh"
-   user        = "ubuntu"
-   private_key = file(var.ssh_key_path)
-   host        = self.public_ip
- }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file(var.ssh_key_path)
+    host        = self.public_ip
+  }
 }    
