@@ -167,6 +167,7 @@ Run this command to see the details of the container
 N/b: you’ll be prompted to input your login credentials or it’ll authenticate with existing credentials and then show Login Succeeded. 
 
 * tag the image
+  
       docker tag myfirstpythonapp:0.0.2.RELEASE princessujay/myfirstpythonapp:0.0.2.RELEASE
    
    * Push the image to Docker Hub
