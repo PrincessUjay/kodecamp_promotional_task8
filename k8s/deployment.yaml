@@ -1,2 +1,19 @@
-add code
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myfirstpythonapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myfirstpythonapp
+  template:
+    metadata:
+      labels:
+        app: myfirstpythonapp
+    spec:
+      containers:
+      - name: myfirstpythonapp
+        image: princessujay/myfirstpythonapp:0.0.2.RELEASE
+        ports:
+        - containerPort: 8000
