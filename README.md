@@ -1001,6 +1001,40 @@ After applying, check the AWS Console to verify the following:
 ### Make the tfplan show in a json file
 
 ### Login to your AWS Console to verify that all the resources were created
+
+### Step 4: Access the Minikube Cluster
+#### 4.1 SSH into EC2 Instance
+After Terraform apply completes, note the public IP address of your EC2 instance from the output.
+* SSH into the EC2 instance using the public IP:
+      
+      ssh -i ~/.ssh/id_rsa ubuntu@<EC2_PUBLIC_IP>
+#### 4.2 Configure
+
+* Once logged in, ensure kubectl is configured to use the Minikube cluster:
+
+      minikube start --driver=docker
+kubectl config use-context minikube
+* Verify the Minikube cluster is running:
+
+      kubectl get nodes
+
+### Step 5: Automate Deployment with GitHub Actions
+#### 5.1 Update GitHub Actions Workflow
+* Ensure your GitHub Actions workflow file (deploy.yml) is correctly set up and committed.
+* In your GitHub repository, navigate to "Settings" -> "Secrets and variables" -> "Actions".
+* Add/verify these necessary secrets:
+      DOCKER_USERNAME: Your Docker Hub username.
+      DOCKER_PASSWORD: Your Docker Hub password.
+      EC2_PUBLIC_IP: The public IP address of your EC2 instance.
+      EC2_USER: The username for your EC2 instance (e.g., ubuntu).
+      EC2_SSH_KEY: Your EC2 instance's private SSH key.
+
+* Add and commit to GitHub 
+      git add .
+      git commit -m "Add GitHub Actions workflow"
+      git push 
+
+N/B :
 ### Destroy Resources
 To clean up all resources created by Terraform, run 
 
