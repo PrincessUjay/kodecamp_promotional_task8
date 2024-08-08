@@ -39,6 +39,6 @@ variable "minikube_subnet_id" {
 }
 
 variable "ssh_key_path" {
-  description = "The path to the SSH key to use for connecting to the instance."
+  description = "The path to the SSH key for connecting to the instance."
   type        = string
 }
