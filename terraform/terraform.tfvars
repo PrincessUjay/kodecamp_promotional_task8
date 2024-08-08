@@ -25,9 +25,6 @@ private_subnet_cidr = "10.0.2.0/24"
 # Availability zone for the public subnet
 public_subnet_az = "eu-west-1a"
 
-# Availability zone for the private subnet
-private_subnet_az = "eu-west-1a"
-
 # Public subnet ID (leave blank if you're creating a new subnet)
 public_subnet_id = ""
 
@@ -42,7 +39,3 @@ private_sg_id = ""
 
 # Minikube subnet ID (if different from public_subnet_id)
 minikube_subnet_id = "" # Typically this would be the same as public_subnet_id if Minikube is in the public subnet
-
-# Your public IP address for SSH access (replace with your actual public IP)
-my_ip = "105.112.113.236" # Run `curl ifconfig.me` to get your current public IP
-
