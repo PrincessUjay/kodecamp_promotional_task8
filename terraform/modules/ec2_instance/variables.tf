@@ -1,6 +1,7 @@
 variable "region" {
   description = "The AWS region to create resources in."
   type        = string
+  default     = "eu-west-1"
 }
 
 variable "ami" {
@@ -40,5 +41,10 @@ variable "minikube_subnet_id" {
 
 variable "ssh_key_path" {
   description = "The path to the SSH key for connecting to the instance."
+  type        = string
+}
+
+variable "key_name" {
+  description = "The name of the keypair."
   type        = string
 }

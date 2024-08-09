@@ -2,7 +2,7 @@
 aws_region = "eu-west-1"
 
 # AMI ID to use for the EC2 instances
-ami = "ami-0c38b837cd80f13bb" # Update with your specific AMI ID if different
+ami = "ami-0c38b837cd80f13bb" # Ubuntu Server 24.04 LTS
 
 # Instance type for the EC2 instances
 instance_type = "t2.micro"
