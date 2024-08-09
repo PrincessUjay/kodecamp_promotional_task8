@@ -36,6 +36,7 @@ resource "aws_instance" "minikube" {
    ami           = var.ami
    instance_type = var.instance_type
    subnet_id     = var.minikube_subnet_id
+   security_groups = [var.minikube_sg_id]
    key_name      = data.aws_key_pair.key_pair.key_name
 
    tags = {
@@ -57,7 +58,10 @@ resource "aws_instance" "minikube" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file(var.ssh_key_path)
+    private_key = file("C:/Users/HP/.ssh/KCVPCkeypair1.pem")
     host        = self.public_ip
+    timeout     = "10m"
   }
+
+  depends_on = [aws_instance.minikube]
 }    

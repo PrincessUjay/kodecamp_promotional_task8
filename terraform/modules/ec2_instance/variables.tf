@@ -34,6 +34,11 @@ variable "private_sg_id" {
   type        = string
 }
 
+variable "minikube_sg_id" {
+  description = "ID of the minikube security group"
+  type        = string
+}
+
 variable "minikube_subnet_id" {
   description = "The ID of the subnet for the Minikube instance."
   type        = string

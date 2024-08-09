@@ -46,6 +46,7 @@ module "ec2_instance" {
   private_subnet_id = module.subnet.private_subnet_id
   public_sg_id      = module.security_group.public_sg_id
   private_sg_id     = module.security_group.private_sg_id
+  minikube_sg_id    = module.security_group.minikube_sg_id
   key_name           = var.key_name
   minikube_subnet_id = module.subnet.public_subnet_id # Assuming Minikube is in the public subnet
   ssh_key_path      = var.ssh_key_path
