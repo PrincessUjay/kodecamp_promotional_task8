@@ -35,7 +35,7 @@ module "security_group" {
   source             = "./modules/security_group"
   vpc_id             = module.vpc.vpc_id
   public_subnet_cidr = "10.0.1.0/24"
-  my_ip              = "105.112.113.236" # Run curl ifconfig.me on your terminal or visit https://www.whatismyip.com/
+  my_ip              = "105.112.114.206" # Run curl ifconfig.me on your terminal or visit https://www.whatismyip.com/
 }
 
 module "ec2_instance" {
