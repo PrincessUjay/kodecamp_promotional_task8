@@ -200,11 +200,12 @@ WSL configuration file
 
     root=D:\WSL\CustomRoot.vhdx
 
-    # Optional: Set the default user for WSL (change 'your-username' to your WSL username)
-    # defaultuser=your-username
-    For the changes to take effect, restart WSL:
+* Optional: Set the default user for WSL (change 'your-username' to your WSL username)
 
-    wsl --shutdown
+      defaultuser=your-username
+* For the changes to take effect, restart WSL:
+
+      wsl --shutdown
 
     Importance of Setting a Custom Path
     * Storage Management: If your system drive (typically C:) has limited space, placing the VHDX file on a different drive can help manage disk usage.
