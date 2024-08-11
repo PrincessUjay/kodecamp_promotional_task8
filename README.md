@@ -176,6 +176,40 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
          docker push princessujay/myfirstpythonapp:0.0.2.RELEASE
 #### 1.8: Docker Image URL
 https://hub.docker.com/r/princessujay/myfirstpythonapp
+
+#### 1.9: create a .wslconfig file 
+
+    touch .wsl
+#### 1.10: input the following for docker resources configuration
+
+WSL configuration file
+
+    [wsl2]
+    # Set the maximum number of processors to be used
+    processors=4
+
+    # Set the maximum amount of memory to be allocated
+    memory=8GB
+
+    # Set the maximum amount of swap space to be used
+    swap=4GB
+
+    # Set the path for the WSL virtual hard disk
+    # If you need to specify a custom path, uncomment and modify the following line
+    # root=path/to/your/custom/root.vhdx
+
+    root=D:\WSL\CustomRoot.vhdx
+
+    # Optional: Set the default user for WSL (change 'your-username' to your WSL username)
+    # defaultuser=your-username
+    For the changes to take effect, restart WSL:
+
+    wsl --shutdown
+
+    Importance of Setting a Custom Path
+    * Storage Management: If your system drive (typically C:) has limited space, placing the VHDX file on a different drive can help manage disk usage.
+    * Performance: Depending on your setup, using a different drive might improve performance if that drive is faster or less utilized.
+    * Data Organization: Keeping WSL data separate from other system data can make backups, migrations, or system maintenance easier.
 #### 1.9: Create kubernetes Manifests 
 * In your repository, create a directory called ‘k8s’ and  then enter the directory 
       
