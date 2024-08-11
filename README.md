@@ -174,13 +174,14 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
    * Push the image to Docker Hub
 
          docker push princessujay/myfirstpythonapp:0.0.2.RELEASE
-
-#### 1.8: Create kubernetes Manifests 
+#### 1.8: Docker Image URL
+https://hub.docker.com/r/princessujay/myfirstpythonapp
+#### 1.9: Create kubernetes Manifests 
 * In your repository, create a directory called ‘k8s’ and  then enter the directory 
       
        mkdir k8s
        cd k8s
-#### 1.9: Inside k8s, create these 2 files with the following contents
+#### 1.10: Inside k8s, create these 2 files with the following contents
 * deployment.yaml
 
       apiVersion: apps/v2
@@ -202,6 +203,13 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
               image: princessujay/myfirstpythonapp:0.0.2.RELEASE
               ports:
               - containerPort: 8000
+              resources:
+                limits:
+                  memory: "512Mi"
+                  cpu: "1000m"
+              requests:
+                memory: "256Mi"
+                cpu: "500m"
 
 * service.yaml:
 
@@ -218,7 +226,7 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
             port: 80
             targetPort: 8000
 
-#### 1.10: Add, commit, and push your Kubernetes manifests:
+#### 1.11: Add, commit, and push your Kubernetes manifests:
 
       git add .
       git commit -m "Add Kubernetes manifests"
@@ -313,7 +321,12 @@ To verify that your AWS CLI is configured correctly, you can run a simple comman
 If the command returns a list of VPCs or an empty list, your configuration is correct. You can also list your profiles to verify by running:
   
     aws configure list-profiles
-    
+* Get the current Amazon Machine Image you will use for this project. E.g: Run this if you are using ubuntu 22.04(specify the region):
+
+      aws ec2 describe-images --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*" --region eu-west-1 --query "Images[*].{ID:ImageId,Name:Name}" --output table
+
+  N/b: this will give you a table then choose the latest ami based on the release date at the end of each row line.
+  
 #### 3.2 Create Terraform Directory in the repository
     mkdir terraform
     cd terraform
