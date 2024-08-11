@@ -1120,6 +1120,10 @@ N/b you don’t need to specify the driver since you have already specified that
 * Verify the Minikube cluster is running:
 
       kubectl get nodes
+* You can Port-forward the service to access it locally by running:
+
+      kubectl port-forward service/myfirstpythonapp 8080:80
+Now, access the application in your web browser at http://localhost:8080. 
 
 ### Step 5: Automate Deployment with GitHub Actions
 #### 5.1: Update GitHub Actions Workflow. Ensure your GitHub Actions workflow file (deploy.yml) is correctly set up and committed.
