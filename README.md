@@ -1,7 +1,7 @@
-# CI/CD pipeline: Minikube Deployment with GitHub Actions, AWS and Terraform
+# CI/CD pipeline: Minikube Deployment with GitHub Actions, AWS and Terraform.
 
 ## Overview
-This repository contains a sample project to demonstrate setting up a CI/CD pipeline with GitHub Actions to deploy a simple Python web application to a Minikube cluster running on an EC2 instance provisioned using Terraform.
+This repository contains a sample project to demonstrate setting up a CI/CD pipeline with GitHub Actions to deploy a simple Python web application to a Minikube cluster running on an EC2 instance provisioned using Terraform (using Windows).
 
 ## Prerequisites
 - An AWS account
@@ -210,12 +210,12 @@ WSL configuration file
     * Storage Management: If your system drive (typically C:) has limited space, placing the VHDX file on a different drive can help manage disk usage.
     * Performance: Depending on your setup, using a different drive might improve performance if that drive is faster or less utilized.
     * Data Organization: Keeping WSL data separate from other system data can make backups, migrations, or system maintenance easier.
-#### 1.9: Create kubernetes Manifests 
+#### 1.11: Create kubernetes Manifests 
 * In your repository, create a directory called ‘k8s’ and  then enter the directory 
       
        mkdir k8s
        cd k8s
-#### 1.10: Inside k8s, create these 2 files with the following contents
+#### 1.12: Inside k8s, create these 2 files with the following contents
 * deployment.yaml
 
       apiVersion: apps/v2
@@ -260,11 +260,20 @@ WSL configuration file
             port: 80
             targetPort: 8000
 
-#### 1.11: Add, commit, and push your Kubernetes manifests:
+#### 1.13: Add, commit, and push your Kubernetes manifests:
 
       git add .
       git commit -m "Add Kubernetes manifests"
       git push 
+
+#### 1.14: Screenshots
+![image](https://github.com/user-attachments/assets/ca1ef926-8ce5-4bb6-ab5a-66fc4b7f8d88)
+![image](https://github.com/user-attachments/assets/96c911d1-dec7-46f9-a11d-2b2004b0c5c4)
+![image](https://github.com/user-attachments/assets/ba23203d-be59-4c4c-a371-b89830b7b656)
+![image](https://github.com/user-attachments/assets/c5201d85-6496-49e1-ba0f-f0bde8b2ff66)
+![image](https://github.com/user-attachments/assets/07959405-bf05-488a-87ff-19474f309f1a)
+![image](https://github.com/user-attachments/assets/787d7c09-b70d-44f8-a190-618a6d071863)
+![image](https://github.com/user-attachments/assets/2a979450-2436-4021-b820-68885d1b25fe)
 
 ### Step 2: Set Up GitHub Actions
 #### 2.1 Create a GitHub Actions Workflow
@@ -1086,7 +1095,7 @@ Apply the Terraform configuration to create the resources:
 
       terraform apply
 Input 'yes'
-### Verify Resources
+#### 3.9: Verify Resources
 After applying, check the AWS Console to verify the following:
 * VPC creation
 * Subnets (Public and Private)
@@ -1095,11 +1104,27 @@ After applying, check the AWS Console to verify the following:
 * Network ACLs
 * EC2 Instances in respective subnets
 
-### Test EC2 Instances
+#### 3.10: Test EC2 Instances
 * Public Instance: Ensure Nginx is installed and accessible via HTTP (port 80).
 * Private Instance: Ensure PostgreSQL is installed and accessible from the public instance.
 
-### Login to your AWS Console to verify that all the resources were created
+#### 3.11: Login to your AWS Console to verify that all the resources were created
+![image](https://github.com/user-attachments/assets/7386eee6-0e27-4126-91c5-9a34550cf2a6)
+![image](https://github.com/user-attachments/assets/50c3180e-dde0-4848-8767-43de836278f0)
+![image](https://github.com/user-attachments/assets/1b4fc037-e85a-48e9-aef9-dfa43379ab17)
+![image](https://github.com/user-attachments/assets/d2b3111c-adaf-446e-940b-40a1c54a6533)
+
+#### 3.12: screenshots
+![image](https://github.com/user-attachments/assets/324b7ef8-c187-4ea7-b5dd-701a9dad3521)
+![image](https://github.com/user-attachments/assets/d3001286-0fd0-49ca-b905-a7be1c2db5e5)
+![image](https://github.com/user-attachments/assets/8c369adf-b8e9-446d-af65-586d3d56829b)
+![image](https://github.com/user-attachments/assets/d0d03702-1494-4176-b4a5-f18082e23947)
+![image](https://github.com/user-attachments/assets/09d9d438-f5c2-4e17-9714-3d2bafe8a1cc)
+![image](https://github.com/user-attachments/assets/46ca648c-ab25-4808-80ac-bff7dcc62443)
+![image](https://github.com/user-attachments/assets/0838e80f-e680-4db5-970d-3db0741580a1)
+![image](https://github.com/user-attachments/assets/177a5e95-e04f-4595-b4ce-f15a7a3d8e2f)
+![image](https://github.com/user-attachments/assets/bb625f46-e968-427a-91c3-44be91188022)
+![image](https://github.com/user-attachments/assets/184e36b3-625d-4457-b7be-8c2e41419663)
 
 ### Step 4: Access the Minikube Cluster
 #### 4.1 SSH into EC2 Instance
@@ -1158,6 +1183,10 @@ N/b you don’t need to specify the driver since you have already specified that
 
       kubectl port-forward service/myfirstpythonapp 8080:80
 Now, access the application in your web browser at http://localhost:8080. 
+#### 4.6: Screenshots
+![image](https://github.com/user-attachments/assets/30298b27-683f-4c04-b5aa-bb31c7d2f291)
+![image](https://github.com/user-attachments/assets/008742ce-a33b-4688-b464-79808fca0b32)
+![image](https://github.com/user-attachments/assets/e8d8dfbc-8ff4-4b9e-9133-e9d380fa6d44)
 
 ### Step 5: Automate Deployment with GitHub Actions
 #### 5.1: Update GitHub Actions Workflow. Ensure your GitHub Actions workflow file (deploy.yml) is correctly set up and committed.
@@ -1190,3 +1219,6 @@ To clean up all resources created by Terraform, run
     terraform destroy
 
 * Enter your keypair and follow the prompt to input 'yes'
+
+#### 5.6: Screenshot
+![image](https://github.com/user-attachments/assets/749b43f8-1166-49ec-b18c-04d66329aed1)
