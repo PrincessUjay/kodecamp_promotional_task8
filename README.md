@@ -278,16 +278,6 @@ N/b: you’ll be prompted to input your login credentials or it’ll authenticat
                 kubectl apply -f k8s/deployment.yaml
                 kubectl apply -f k8s/service.yaml
 
-#### 2.2 Add your secrets to GitHub:
-* Go to your repository's "Settings".
-Under "Secrets and variables", select "Actions".
-* Add the following secrets:
-      DOCKER_USERNAME: Your Docker Hub username.
-      DOCKER_PASSWORD: Your Docker Hub password.
-      EC2_PUBLIC_IP: The public IP address of your EC2 instance.
-      EC2_USER: The username for your EC2 instance (e.g., ubuntu).
-      EC2_SSH_KEY: Your EC2 instance's private SSH key.
-
 #### 2.3 Add, commit, and push the workflow file:
 
       git add .
@@ -405,12 +395,12 @@ terraform/main.tf
       source             = "./modules/security_group"
       vpc_id             = module.vpc.vpc_id
       public_subnet_cidr = "10.0.1.0/24"
-      my_ip              = "105.112.113.236" # Run curl ifconfig.me on your terminal or visit https://www.whatismyip.com/
+      my_ip              = "105.112.114.206" # Run curl ifconfig.me on your terminal or visit https://www.whatismyip.com/
     }
     
     module "ec2_instance" {
       source           = "./modules/ec2_instance"
-      ami              = "ami-0c38b837cd80f13bb" # Ubuntu Server 24.04 LTS
+      ami              = "ami-"00bf8c84e3af174f6" # Ubuntu Server 22.04 LTS
       instance_type    = "t2.micro"
       public_subnet_id = module.subnet.public_subnet_id
       private_subnet_id = module.subnet.private_subnet_id
