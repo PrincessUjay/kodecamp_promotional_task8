@@ -24,6 +24,7 @@ kodecamp_promotional_task8
           ├── main.tf
           ├── outputs.tf
           ├── variables.tf
+          ├── terraform.tfvars
           └── modules
              ├── ec2_instance
                  ├── main.tf
@@ -333,6 +334,7 @@ Create and set up the following directory structure for it:
          └── main.tf
          └── outputs.tf
          └── variables.tf
+         └── terraform.tfvars
          └── modules
             ├── ec2_instance
                 └── scripts
@@ -504,17 +506,45 @@ terraform/variables.tf
       type        = string
     }
 
+terraform/terraform.tfvars
+
+    # AWS region where the resources will be deployed
+    aws_region = "eu-west-1"
+
+    # AMI ID to use for the EC2 instances
+    ami = "ami-0c38b837cd80f13bb" # Ubuntu Server 22.04 LTS
+
+    # Instance type for the EC2 instances
+    instance_type = "t2.micro"
+
+    # SSH key pair name for EC2 access
+    key_name = "KCVPCkeypair1" # Ensure this key pair exists in your AWS account
+
+    # Path to the SSH private key file
+    ssh_key_path = "C:/Users/HP/.ssh/KCVPCkeypair1.pem" # Update with the actual path to your SSH 
+
+    # Public subnet ID (leave blank if you're creating a new subnet)
+    public_subnet_id = ""
+
+    # Private subnet ID (leave blank if you're creating a new subnet)
+    private_subnet_id = ""
+
+    # Public security group ID (leave blank if you're creating a new security group)
+    public_sg_id = ""
+
+    # Private security group ID (leave blank if you're creating a new security group)
+    private_sg_id = ""
+
+    # Minikube subnet ID (if different from public_subnet_id)
+    minikube_subnet_id = "" # Typically this would be the same as public_subnet_id if Minikube is in the public subnet
+    
 terraform/modules/ec2_instance/main.tf
 
-    provider "aws" {
-      region = var.region
-    }
-    
     data "aws_key_pair" "key_pair" {
       key_name           = "KCVPCkeypair1"
       include_public_key = true
     }
-    
+
     resource "aws_instance" "public_instance" {
       ami                    = var.ami
       instance_type          = var.instance_type
@@ -522,72 +552,57 @@ terraform/modules/ec2_instance/main.tf
       security_groups         = [var.public_sg_id]
       associate_public_ip_address = true
       key_name                    = data.aws_key_pair.key_pair.key_name
-    
+
       user_data = file("${path.module}/scripts/install_nginx.sh")
-    
+
       tags = {
         Name = "PublicInstance"
       }
     }
-    
+
     resource "aws_instance" "private_instance" {
       ami               = var.ami
       instance_type     = var.instance_type
       subnet_id         = var.private_subnet_id
       security_groups    = [var.private_sg_id]
       key_name                    = data.aws_key_pair.key_pair.key_name
-    
+
       user_data = file("${path.module}/scripts/install_postgresql.sh")
-    
+
       tags = {
         Name = "PrivateInstance"
       }
     }
-    
+
     resource "aws_instance" "minikube" {
-      ami           = var.ami
-      instance_type = var.instance_type
-      subnet_id     = var.minikube_subnet_id
-      key_name      = data.aws_key_pair.key_pair.key_name
+       ami           = var.ami
+       instance_type = var.instance_type
+       subnet_id     = var.minikube_subnet_id
+       security_groups = [var.minikube_sg_id]
+       key_name      = data.aws_key_pair.key_pair.key_name
 
-      tags = {
-        Name = "MinikubeInstance"
-      }
-    
-      provisioner "file" {
-      source      = "${path.module}/scripts/install_minikube.sh"
-      destination = "/tmp/install_minikube.sh"
-      }
+       user_data = file("${path.module}/scripts/install_minikube.sh")
 
-      provisioner "remote-exec" {
-        inline = [
-      "chmod +x /tmp/install_minikube.sh",
-      "/tmp/install_minikube.sh"
-        ]
-      }
-
-      connection {
-        type        = "ssh"
-        user        = "ubuntu"
-        private_key = file(var.ssh_key_path)
-        host        = self.public_ip
-      }
-    }    
+       tags = {
+         Name = "MinikubeInstance"
+       }
+    }
+        
 terraform/modules/ec2_instance/outputs.tf
 
     output "public_instance_id" {
       value = aws_instance.public_instance.id
     }
-    
+
     output "public_instance_public_ip" {
       description = "The public IP address of the public EC2 instance"
       value       = aws_instance.public_instance.public_ip
     }
-    
+
     output "private_instance_id" {
       value = aws_instance.private_instance.id
     }
-    
+
     output "private_instance_private_ip" {
       description = "The private IP address of the private EC2 instance"
       value       = aws_instance.private_instance.private_ip
@@ -608,45 +623,56 @@ terraform/modules/ec2_instance/variables.tf
     variable "region" {
       description = "The AWS region to create resources in."
       type        = string
+      default     = "eu-west-1"
     }
-    
+
     variable "ami" {
       description = "AMI ID to use for the instances"
       type        = string
     }
-    
+
     variable "instance_type" {
       description = "Type of EC2 instance to launch"
       type        = string
     }
-    
+
     variable "public_subnet_id" {
       description = "ID of the public subnet"
       type        = string
     }
-    
+
     variable "private_subnet_id" {
       description = "ID of the private subnet"
       type        = string
     }
-    
+
     variable "public_sg_id" {
       description = "ID of the public security group"
       type        = string
     }
-    
+
     variable "private_sg_id" {
       description = "ID of the private security group"
       type        = string
     }
-    
+
+    variable "minikube_sg_id" {
+      description = "ID of the minikube security group"
+      type        = string
+    }
+
     variable "minikube_subnet_id" {
       description = "The ID of the subnet for the Minikube instance."
       type        = string
     }
 
     variable "ssh_key_path" {
-      description = "The path to the SSH key to use for connecting to the instance."
+      description = "The path to the SSH key for connecting to the instance."
+      type        = string
+    }
+
+    variable "key_name" {
+      description = "The name of the keypair."
       type        = string
     }
 
@@ -657,7 +683,7 @@ terraform/modules/ec2_instance/scripts/install_minikube.sh
     sudo apt-get install -y docker.io
     curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
     sudo install minikube-linux-amd64 /usr/local/bin/minikube
-    minikube start --driver=docker
+    minikube start --driver=docker --memory=4096 --cpus=2
     kubectl apply -f /kodecamp_promotional_task8/k8s/deployment.yaml
     kubectl apply -f /kodecamp_promotional_task8/k8s/service.yaml
     
@@ -782,28 +808,28 @@ terraform/modules/security_group/main.tf
     resource "aws_security_group" "public_sg" {
       vpc_id = var.vpc_id
       name   = "PublicSecurityGroup"
-    
+
       ingress {
         from_port   = 80
         to_port     = 80
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
       }
-    
+
       ingress {
         from_port   = 443
         to_port     = 443
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
       }
-    
+
       ingress {
         from_port   = 22
         to_port     = 22
         protocol    = "tcp"
         cidr_blocks = [var.public_subnet_cidr]
       }
-    
+
       egress {
         from_port   = 0
         to_port     = 0
@@ -811,18 +837,45 @@ terraform/modules/security_group/main.tf
         cidr_blocks = ["0.0.0.0/0"]
       }
     }
-    
+
     resource "aws_security_group" "private_sg" {
       vpc_id = var.vpc_id
       name   = "PrivateSecurityGroup"
-    
+
       ingress {
         from_port   = 5432
         to_port     = 5432
         protocol    = "tcp"
         cidr_blocks = [var.public_subnet_cidr]
       }
-    
+
+      egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+    }
+
+    resource "aws_security_group" "minikube_sg" {
+      vpc_id = var.vpc_id
+      name   = "minikube_sg"
+      description = "Allow SSH and other necessary traffic"
+
+      ingress {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+
+      ingress {
+        from_port   = 6443
+        to_port     = 6443
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+
       egress {
         from_port   = 0
         to_port     = 0
@@ -839,6 +892,10 @@ terraform/modules/security_group/outputs.tf
     
     output "private_sg_id" {
       value = aws_security_group.private_sg.id
+    }
+
+    output "minikube_sg_id" {
+      value = aws_security_group.minikube_sg.id
     }
 
 terraform/modules/security_group/variables.tf
@@ -895,14 +952,24 @@ terraform/modules/subnet/variables.tf
       description = "ID of the VPC to create subnets in"
       type        = string
     }
-    
+
     variable "public_subnet_cidr" {
       description = "CIDR block for the public subnet"
       type        = string
     }
-    
+
     variable "private_subnet_cidr" {
       description = "CIDR block for the private subnet"
+      type        = string
+    }
+
+    variable "public_subnet_az" {
+      description = "Availability Zone for the public subnet"
+      type        = string
+    }
+
+    variable "private_subnet_az" {
+      description = "Availability Zone for the private subnet"
       type        = string
     }
 
@@ -939,24 +1006,49 @@ terraform/modules/vpc/variables.tf
       type        = string
     }
 
-### Initialize Terraform
+#### 3.3: Initialize Terraform
 * Navigate to the root directory (terraform) and initialize Terraform 
-(Run the command terraform init):
+(Run the command):
 
-### Check if the configuration is valid 
-* Run terraform plan if the configuration is valid.
-* Enter your keypair and follow the prompt to input 'yes'.
+        terraform init
+#### 3.4: Check if the configuration is valid 
+* Run
 
-### Review Configuration
+      terraform validate
+#### 3.5.0: Create a New Key Pair (if needed)
+If you don’t have a key pair or want to create a new one, follow these steps: Using AWS CLI (I prefer command line):
+
+If you have the AWS CLI installed and configured:
+
+      aws ec2 create-key-pair --key-name KCVPCkeypair --query 'KeyMaterial' --output text > ~/.ssh/KCVPCkeypair1.pem
+
+This command will create the key pair in AWS and store the private key in the ~/.ssh/ directory.
+
+#### 3.5.1: Set Permissions for the Private Key
+Ensure the permissions on the private key file are set correctly:
+
+      chmod 400 ~/.ssh/KCVPCkeypair1.pem
+
+#### 3.5.2: Add the Key to the SSH Agent (Optional)
+If you want to add the key to your SSH agent (which allows you to use the key without specifying its path each time), you can do so with the following commands:
+
+      eval "$(ssh-agent -s)"  # Start the SSH agent
+      ssh-add ~/.ssh/KCVPCkeypair1.pem
+
+This is optional but can be convenient if you frequently SSH into servers using this key.
+
+#### 3.6: Run terraform plan if the configuration is valid but before that ensure that your terraform.tfvars file has defined variables to avoid being prompted to enter them manually when you run 'terraform plan'.
+
+#### 3.7: Review Configuration
 * Run a plan to review the changes Terraform will make by running the command:
 
-      terraform plan -out=tfplan.out
-  
- * Enter your keypair and follow the prompt to input 'yes' 
-
-### Apply Configuration
+      terraform plan -out=tfplan.json
+N/b: this will make the terraform plam show in a json file located at terraform/tfplan.json
+#### 3.8: Apply Configuration
 Apply the Terraform configuration to create the resources:
 
+      terraform apply
+Input 'yes'
 ### Verify Resources
 After applying, check the AWS Console to verify the following:
 * VPC creation
@@ -970,8 +1062,6 @@ After applying, check the AWS Console to verify the following:
 * Public Instance: Ensure Nginx is installed and accessible via HTTP (port 80).
 * Private Instance: Ensure PostgreSQL is installed and accessible from the public instance.
 
-### Make the tfplan show in a json file
-
 ### Login to your AWS Console to verify that all the resources were created
 
 ### Step 4: Access the Minikube Cluster
@@ -979,28 +1069,66 @@ After applying, check the AWS Console to verify the following:
 After Terraform apply completes, note the public IP address of your EC2 instance from the output.
 * SSH into the EC2 instance using the public IP:
       
-      ssh -i ~/.ssh/id_rsa ubuntu@<EC2_PUBLIC_IP>
-#### 4.2 Configure
+      ssh -i ~/.ssh/id_rsa ubuntu@<EC2_INSTANCE_PUBLIC_IP>
+      # In this case the minikube cluster public IP
 
-* Once logged in, ensure kubectl is configured to use the Minikube cluster:
+N/B: If you don’t already have OpenSSH installed on your windows system, you can do this to avoid getting an error while connecting to ssh. You can either:
+* Use PowerShell to Install OpenSSH Client
+      
+      * Open PowerShell as Administrator: Right-click on the Start button and select Windows Terminal (Admin) or PowerShell (Admin).
+      * Install OpenSSH Client: Run the following command to install the OpenSSH Client feature:
+
+            Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+
+      * Verify Installation: Check if the installation was successful by running:
+
+      ssh -V
+
+Or
+
+* Use Windows Package Manager (winget): If you have Windows Package Manager (winget) installed, you can use it to install OpenSSH:
+
+      * Open Command Prompt or PowerShell: Run as Administrator.
+      * Install OpenSSH Client. Run:
+
+            winget install OpenSSH.Client
+
+These methods should help you install OpenSSH Client.
+
+#### 4.2: Once you ssh into your ec2-User ( for me ubuntu) successfully, Add Your User to the Docker Group by running this command while still logged in:
+
+      sudo usermod -aG docker $USER
+#### 4.3: Next, Apply the New Group Membership:
+You can either log out and log back in, or use the newgrp command to apply the changes immediately:
+
+      newgrp docker
+#### 4.4: Verify Docker Access:
+Check if you can run Docker commands without sudo:
+
+      docker info
+#### 4.5 start Minikube
 
       minikube start --driver=docker
-kubectl config use-context minikube
+N/b you don’t need to specify the driver since you have already specified that in the install_minikube.sh file in terraform/modules/ec2_instance/scripts 
+#### 4.6 Configure
+* Ensure kubectl is configured to use the Minikube cluster:
+
+      kubectl config use-context minikube
 * Verify the Minikube cluster is running:
 
       kubectl get nodes
 
 ### Step 5: Automate Deployment with GitHub Actions
-#### 5.1 Update GitHub Actions Workflow
-* Ensure your GitHub Actions workflow file (deploy.yml) is correctly set up and committed.
-* In your GitHub repository, navigate to "Settings" -> "Secrets and variables" -> "Actions".
+#### 5.1: Update GitHub Actions Workflow. Ensure your GitHub Actions workflow file (deploy.yml) is correctly set up and committed.
+#### 5.2: In your GitHub repository, navigate to "Settings" -> "Secrets and variables" -> "Actions".
 * Add/verify these necessary secrets:
+  
       DOCKER_USERNAME: Your Docker Hub username.
       DOCKER_PASSWORD: Your Docker Hub password.
       EC2_PUBLIC_IP: The public IP address of your EC2 instance.
       EC2_USER: The username for your EC2 instance (e.g., ubuntu).
       EC2_SSH_KEY: Your EC2 instance's private SSH key.
-* Add a .gitignore file
+#### 5.3: Add a .gitignore file
 
       touch .gitignore
 * Add the following content to it to enable it to ignore these large and confidential files
@@ -1009,13 +1137,13 @@ kubectl config use-context minikube
       terraform.tfstate.backup
       *.terraform
       *.tfstate
-* Add and commit to GitHub 
+#### 5.4: Add and commit to GitHub 
       git add .
       git commit -m "Add GitHub Actions workflow"
       git push 
 
-N/B :
-### Destroy Resources
+N/B : 
+#### 5.5: Destroy Resources
 To clean up all resources created by Terraform, run 
 
     terraform destroy
