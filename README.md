@@ -329,11 +329,13 @@ WSL configuration file
                 kubectl apply -f k8s/deployment.yaml
                 kubectl apply -f k8s/service.yaml
 
-#### 2.3 Add, commit, and push the workflow file:
+#### 2.3: Add, commit, and push the workflow file:
 
       git add .
       git commit -m "Add GitHub Actions workflow"
       git push
+#### 2.4: screenshot
+![image](https://github.com/user-attachments/assets/858f90b1-f3b0-4b03-b424-0ead94551b0f)
 
 ### Step 3: Set Up Terraform for EC2 and Minikube
 #### 3.1 Setup AWS CLI Profile
