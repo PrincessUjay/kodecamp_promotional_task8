@@ -47,7 +47,7 @@ resource "aws_instance" "minikube" {
 
    provisioner "file" {
     source = "C:/Users/HP/kodecamp_promotional_task8/k8s"
-    destination = "home/ubuntu/k8s"
+    destination = "/home/ubuntu/k8s"
    }
 
    provisioner "remote-exec" {
