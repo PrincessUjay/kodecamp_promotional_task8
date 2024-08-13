@@ -52,7 +52,7 @@ resource "aws_instance" "minikube" {
 
    provisioner "remote-exec" {
     inline = [
-      "sudo chown -R ubuntu:ubuntu /home/ubuntu/k8s"
+      "sudo chown -R ubuntu:ubuntu /home/ubuntu/k8s",
       "ls -al /home/ubuntu/k8s"
     ]
    }
