@@ -44,4 +44,16 @@ resource "aws_instance" "minikube" {
    tags = {
      Name = "MinikubeInstance"
    }
+
+   provisioner "file" {
+    source = "C:/Users/HP/kodecamp_promotional_task8/k8s"
+    destination = "home/ubuntu/k8s"
+   }
+
+   provisioner "remote-exec" {
+    inline = [
+      "sudo chown -R ubuntu:ubuntu /home/ubuntu/k8s"
+      "ls -al /home/ubuntu/k8s"
+    ]
+   }
 }
