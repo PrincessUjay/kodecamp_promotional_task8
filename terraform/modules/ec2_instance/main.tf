@@ -52,8 +52,16 @@ resource "aws_instance" "minikube" {
 
    provisioner "remote-exec" {
     inline = [
+      "mkdir -p /home/ubuntu/k8s",
       "sudo chown -R ubuntu:ubuntu /home/ubuntu/k8s",
       "ls -al /home/ubuntu/k8s"
     ]
+   }
+
+   connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = file("C:/Users/HP/.ssh/KCVPCkeypair1.pem")
+    host = self.public_ip
    }
 }

@@ -5,7 +5,7 @@ aws_region = "eu-west-1"
 ami = "ami-0c38b837cd80f13bb" # Ubuntu Server 24.04 LTS
 
 # Instance type for the EC2 instances
-instance_type = "t2.micro"
+instance_type = "t2.medium"
 
 # SSH key pair name for EC2 access
 key_name = "KCVPCkeypair1" # Ensure this key pair exists in your AWS account
