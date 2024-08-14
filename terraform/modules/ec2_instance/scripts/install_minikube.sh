@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x
+
 sudo apt-get update
 sudo apt-get install -y docker.io
 sudo systemctl enable docker
@@ -15,6 +17,3 @@ chmod +x minikube
 sudo mv minikube /usr/local/bin/
 
 # start minikube and apply the kubernetes manifests
-minikube start --driver=docker --memory=4096 --cpus=2
-kubectl apply -f home/ubuntu/k8s/deployment.yaml
-kubectl apply -f home/ubuntu/k8s/service.yaml

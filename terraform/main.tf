@@ -40,7 +40,7 @@ module "security_group" {
 
 module "ec2_instance" {
   source           = "./modules/ec2_instance"
-  ami              = "ami-00bf8c84e3af174f6" # Ubuntu Server 22.04 LTS
+  ami              = "ami-0c38b837cd80f13bb" # Ubuntu Server
   instance_type    = "t2.medium"
   public_subnet_id = module.subnet.public_subnet_id
   private_subnet_id = module.subnet.private_subnet_id
