@@ -39,8 +39,6 @@ resource "aws_instance" "minikube" {
    security_groups = [var.minikube_sg_id]
    key_name      = data.aws_key_pair.key_pair.key_name
 
-   user_data = file("${path.module}/scripts/install_minikube.sh")
-
    tags = {
      Name = "MinikubeInstance"
    }
