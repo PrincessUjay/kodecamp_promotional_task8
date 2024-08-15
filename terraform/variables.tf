@@ -14,28 +14,18 @@ variable "instance_type" {
   type        = string
 }
 
-variable "public_subnet_id" {
-  description = "The ID of the public subnet."
-  type        = string
-}
-
-variable "private_subnet_id" {
-  description = "The ID of the private subnet."
-  type        = string
-}
-
-variable "public_sg_id" {
-  description = "The ID of the public security group."
-  type        = string
-}
-
-variable "private_sg_id" {
-  description = "The ID of the private security group."
-  type        = string
-}
-
 variable "minikube_subnet_id" {
   description = "The ID of the subnet for the Minikube instance."
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "The ID of the vpc."
+  type        = string
+}
+
+variable "igw_id" {
+  description = "ID of the internet gateway"
   type        = string
 }
 

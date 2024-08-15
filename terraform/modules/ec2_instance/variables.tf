@@ -14,26 +14,6 @@ variable "instance_type" {
   type        = string
 }
 
-variable "public_subnet_id" {
-  description = "ID of the public subnet"
-  type        = string
-}
-
-variable "private_subnet_id" {
-  description = "ID of the private subnet"
-  type        = string
-}
-
-variable "public_sg_id" {
-  description = "ID of the public security group"
-  type        = string
-}
-
-variable "private_sg_id" {
-  description = "ID of the private security group"
-  type        = string
-}
-
 variable "minikube_sg_id" {
   description = "ID of the minikube security group"
   type        = string

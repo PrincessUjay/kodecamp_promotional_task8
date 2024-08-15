@@ -3,7 +3,7 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "public_subnet_cidr" {
+variable "minikube_subnet_cidr" {
   description = "CIDR block of the public subnet"
   type        = string
 }
