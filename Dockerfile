@@ -5,10 +5,10 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy all application files
-COPY app.py .
+COPY app/ /app
 
 # Expose port 8000
-EXPOSE 8000
+EXPOSE 5000
 
 # Command to run the application
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
