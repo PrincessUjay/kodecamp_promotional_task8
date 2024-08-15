@@ -49,7 +49,7 @@ resource "aws_instance" "minikube" {
   # Then, provision the Kubernetes manifest files
   provisioner "file" {
     source = "C:/Users/HP/kodecamp_promotional_task8/k8s"
-    destination = "/home/ubuntu"
+    destination = "/home/ubuntu/"
   }
 
   provisioner "remote-exec" {
