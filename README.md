@@ -1,4 +1,19 @@
 # CI/CD pipeline: Minikube Deployment with GitHub Actions, AWS and Terraform.
+![Screenshot (15)](https://github.com/user-attachments/assets/c8de1f9f-c5f9-4837-849f-4d680e1cef20)
+![Screenshot (14)](https://github.com/user-attachments/assets/8a84d5a1-1979-4cf4-a860-687eba5035a0)
+![Screenshot (13)](https://github.com/user-attachments/assets/ca07c75a-1373-45a4-b465-0da53a20b7fc)
+![Screenshot (12)](https://github.com/user-attachments/assets/2510392e-de5b-4a38-9efd-e84b14a8a2c4)
+![Screenshot (11)](https://github.com/user-attachments/assets/246eb994-c58d-4a4d-89f2-8eaa1d309a5a)
+![Screenshot (10)](https://github.com/user-attachments/assets/12deb01d-103a-4a84-9bf1-cb70685e1713)
+![Screenshot (9)](https://github.com/user-attachments/assets/9a2d8448-1672-42a9-bc47-e8d48d3ccadc)
+![Screenshot (8)](https://github.com/user-attachments/assets/463da2ca-813c-4e3b-9a55-d31f0757e709)
+![Screenshot (7)](https://github.com/user-attachments/assets/303fd359-544f-4548-a503-3f68a65cf5ac)
+![Screenshot (6)](https://github.com/user-attachments/assets/1496eebd-52b6-49d8-b711-754378beaf97)
+![Screenshot (5)](https://github.com/user-attachments/assets/952b8064-a3c8-4c6a-a45f-415692074d35)
+![Screenshot (4)](https://github.com/user-attachments/assets/5c7ed603-5588-408b-a7c9-e24212201fbd)
+![Screenshot (3)](https://github.com/user-attachments/assets/f17ecaa5-1f6a-403b-953e-bed9bcd8a478)
+![Screenshot (2)](https://github.com/user-attachments/assets/c6e99148-7a0c-4997-9e91-beeccad3e8c1)
+![Screenshot (1)](https://github.com/user-attachments/assets/cab69112-c728-4ead-8ecb-c51a7561057c)
 
 ## Overview
 This repository contains a sample project to demonstrate setting up a CI/CD pipeline with GitHub Actions to deploy a simple Python web application to a Minikube cluster running on an EC2 instance provisioned using Terraform (using Windows).
