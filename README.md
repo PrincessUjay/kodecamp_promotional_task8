@@ -1,19 +1,4 @@
 # CI/CD pipeline: Minikube Deployment with GitHub Actions, AWS and Terraform.
-![Screenshot (15)](https://github.com/user-attachments/assets/c8de1f9f-c5f9-4837-849f-4d680e1cef20)
-![Screenshot (14)](https://github.com/user-attachments/assets/8a84d5a1-1979-4cf4-a860-687eba5035a0)
-![Screenshot (13)](https://github.com/user-attachments/assets/ca07c75a-1373-45a4-b465-0da53a20b7fc)
-![Screenshot (12)](https://github.com/user-attachments/assets/2510392e-de5b-4a38-9efd-e84b14a8a2c4)
-![Screenshot (11)](https://github.com/user-attachments/assets/246eb994-c58d-4a4d-89f2-8eaa1d309a5a)
-![Screenshot (10)](https://github.com/user-attachments/assets/12deb01d-103a-4a84-9bf1-cb70685e1713)
-![Screenshot (9)](https://github.com/user-attachments/assets/9a2d8448-1672-42a9-bc47-e8d48d3ccadc)
-![Screenshot (8)](https://github.com/user-attachments/assets/463da2ca-813c-4e3b-9a55-d31f0757e709)
-![Screenshot (7)](https://github.com/user-attachments/assets/303fd359-544f-4548-a503-3f68a65cf5ac)
-![Screenshot (6)](https://github.com/user-attachments/assets/1496eebd-52b6-49d8-b711-754378beaf97)
-![Screenshot (5)](https://github.com/user-attachments/assets/952b8064-a3c8-4c6a-a45f-415692074d35)
-![Screenshot (4)](https://github.com/user-attachments/assets/5c7ed603-5588-408b-a7c9-e24212201fbd)
-![Screenshot (3)](https://github.com/user-attachments/assets/f17ecaa5-1f6a-403b-953e-bed9bcd8a478)
-![Screenshot (2)](https://github.com/user-attachments/assets/c6e99148-7a0c-4997-9e91-beeccad3e8c1)
-![Screenshot (1)](https://github.com/user-attachments/assets/cab69112-c728-4ead-8ecb-c51a7561057c)
 
 ## Overview
 This repository contains a sample project to demonstrate setting up a CI/CD pipeline with GitHub Actions to deploy a simple Python web application to a Minikube cluster running on an EC2 instance provisioned using Terraform (using Windows).
@@ -949,6 +934,9 @@ After applying, check the AWS Console to verify the following:
 ![image](https://github.com/user-attachments/assets/d2b3111c-adaf-446e-940b-40a1c54a6533)
 
 #### 3.12: screenshots
+![image](https://github.com/user-attachments/assets/79045750-d4fc-41d3-82f4-7140681f43e4)
+![image](https://github.com/user-attachments/assets/28bf9ef1-eda8-48a2-919c-de4cf4bbf7dc)
+
 ![image](https://github.com/user-attachments/assets/324b7ef8-c187-4ea7-b5dd-701a9dad3521)
 ![image](https://github.com/user-attachments/assets/d3001286-0fd0-49ca-b905-a7be1c2db5e5)
 ![image](https://github.com/user-attachments/assets/8c369adf-b8e9-446d-af65-586d3d56829b)
@@ -1015,9 +1003,15 @@ N/b you don’t need to specify the driver since you have already specified that
       kubectl get nodes
 * You can Port-forward the service to access it locally by running:
 
-      kubectl port-forward service/myfirstpythonapp 8080:80
-Now, access the application in your web browser at http://localhost:8080. 
+      kubectl port-forward service/myfirstpythonapp-service 5000:80
+Now, access the application in your 
+
+    curl localhost:5000
 #### 4.6: Screenshots
+![image](https://github.com/user-attachments/assets/a4f5a0e6-17b1-4965-baaf-e49677815819) ![image](https://github.com/user-attachments/assets/529f39e8-94ff-4684-8250-5da70bfe715f) ![image](https://github.com/user-attachments/assets/477c38a8-6493-4ad6-a720-712271cf1736) ![image](https://github.com/user-attachments/assets/3dbdd2f1-65d7-46bc-8d40-1b7b9a174c17)
+
+
+
 ![image](https://github.com/user-attachments/assets/30298b27-683f-4c04-b5aa-bb31c7d2f291)
 ![image](https://github.com/user-attachments/assets/008742ce-a33b-4688-b464-79808fca0b32)
 ![image](https://github.com/user-attachments/assets/e8d8dfbc-8ff4-4b9e-9133-e9d380fa6d44)
@@ -1045,6 +1039,11 @@ Now, access the application in your web browser at http://localhost:8080.
       git add .
       git commit -m "Add GitHub Actions workflow"
       git push 
+
+#### screenshots
+![image](https://github.com/user-attachments/assets/4db428e8-4398-487f-a3d2-c2c288a67c10)
+![image](https://github.com/user-attachments/assets/01319f5a-0e85-489d-982e-90dc0459d23b)
+
 
 N/B : 
 #### 5.5: Destroy Resources
