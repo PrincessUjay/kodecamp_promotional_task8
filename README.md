@@ -981,33 +981,19 @@ terraform/modules/security_group/variables.tf
 
 terraform/modules/subnet/main.tf
 
-    resource "aws_subnet" "public" {
+    resource "aws_subnet" "minikube" {
       vpc_id            = var.vpc_id
-      cidr_block        = var.public_subnet_cidr
-      availability_zone = var.public_subnet_az
+      cidr_block        = var.minikube_subnet_cidr
       map_public_ip_on_launch = true
       tags = {
-        Name = "PublicSubnet"
-      }
-    }
-    
-    resource "aws_subnet" "private" {
-      vpc_id            = var.vpc_id
-      cidr_block        = var.private_subnet_cidr
-      availability_zone = var.private_subnet_az
-      tags = {
-        Name = "PrivateSubnet"
+        Name = "MinikubeSubnet"
       }
     }
 
 terraform/modules/subnet/outputs.tf
 
-    output "public_subnet_id" {
-      value = aws_subnet.public.id
-    }
-    
-    output "private_subnet_id" {
-      value = aws_subnet.private.id
+    output "minikube_subnet_id" {
+      value = aws_subnet.minikube.id
     }
 
 terraform/modules/subnet/variables.tf
@@ -1017,23 +1003,8 @@ terraform/modules/subnet/variables.tf
       type        = string
     }
 
-    variable "public_subnet_cidr" {
+    variable "minikube_subnet_cidr" {
       description = "CIDR block for the public subnet"
-      type        = string
-    }
-
-    variable "private_subnet_cidr" {
-      description = "CIDR block for the private subnet"
-      type        = string
-    }
-
-    variable "public_subnet_az" {
-      description = "Availability Zone for the public subnet"
-      type        = string
-    }
-
-    variable "private_subnet_az" {
-      description = "Availability Zone for the private subnet"
       type        = string
     }
 
