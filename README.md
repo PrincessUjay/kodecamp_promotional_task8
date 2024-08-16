@@ -918,14 +918,10 @@ Input 'yes'
 After applying, check the AWS Console to verify the following:
 * VPC creation
 * Subnets (Public and Private)
-* Route Tables and NAT Gateway
-* Security Groups
-* Network ACLs
-* EC2 Instances in respective subnets
+* Route Table and Internet Gateway
+* Security Group
+* EC2 Instance in the respective subnet
 
-#### 3.10: Test EC2 Instances
-* Public Instance: Ensure Nginx is installed and accessible via HTTP (port 80).
-* Private Instance: Ensure PostgreSQL is installed and accessible from the public instance.
 
 #### 3.11: Login to your AWS Console to verify that all the resources were created
 ![image](https://github.com/user-attachments/assets/7386eee6-0e27-4126-91c5-9a34550cf2a6)
@@ -1009,10 +1005,6 @@ Now, access the application in your
     curl localhost:5000
 #### 4.6: Screenshots
 ![image](https://github.com/user-attachments/assets/a4f5a0e6-17b1-4965-baaf-e49677815819) ![image](https://github.com/user-attachments/assets/529f39e8-94ff-4684-8250-5da70bfe715f) ![image](https://github.com/user-attachments/assets/477c38a8-6493-4ad6-a720-712271cf1736) ![image](https://github.com/user-attachments/assets/3dbdd2f1-65d7-46bc-8d40-1b7b9a174c17)
-
-
-
-![image](https://github.com/user-attachments/assets/30298b27-683f-4c04-b5aa-bb31c7d2f291)
 ![image](https://github.com/user-attachments/assets/008742ce-a33b-4688-b464-79808fca0b32)
 ![image](https://github.com/user-attachments/assets/e8d8dfbc-8ff4-4b9e-9133-e9d380fa6d44)
 
@@ -1040,18 +1032,15 @@ Now, access the application in your
       git commit -m "Add GitHub Actions workflow"
       git push 
 
-#### screenshots
+#### 5.5: screenshots
 ![image](https://github.com/user-attachments/assets/4db428e8-4398-487f-a3d2-c2c288a67c10)
 ![image](https://github.com/user-attachments/assets/01319f5a-0e85-489d-982e-90dc0459d23b)
-
+![image](https://github.com/user-attachments/assets/749b43f8-1166-49ec-b18c-04d66329aed1)
 
 N/B : 
-#### 5.5: Destroy Resources
+#### 5.6: Destroy Resources
 To clean up all resources created by Terraform, run 
 
     terraform destroy
 
 * Enter your keypair and follow the prompt to input 'yes'
-
-#### 5.6: Screenshot
-![image](https://github.com/user-attachments/assets/749b43f8-1166-49ec-b18c-04d66329aed1)
