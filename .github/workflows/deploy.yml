@@ -1,4 +1,4 @@
-name: Deploy to Minikube
+name: CI/CD Pipeline
 
 on:
   push:
