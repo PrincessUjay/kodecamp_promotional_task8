@@ -14,23 +14,31 @@ resource "aws_instance" "minikube" {
     Name = "MinikubeInstance"
   }
 
-  provisioner "file" {
-    source = file("C:/Users/HP/kodecamp_promotional_task8/terraform/modules/ec2_instance/scripts/install_minikube.sh")
-    destination = "/tmp/install_minikube.sh"
-  }
+  user_data = file("${path.module}/scripts/install_minikube.sh")
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/install_minikube.sh",
-      "/tmp/install_minikube.sh"
-    ]
-  }
+  # provisioner "file" {
+  #   source = file("${path.module}/scripts/install_minikube.sh")
+  #   destination = "/tmp/install_minikube.sh"
+  # }
+
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/install_minikube.sh",
+  #     "/tmp/install_minikube.sh"
+  #   ]
+  # }
 
   provisioner "file" {
     source = "C:/Users/HP/kodecamp_promotional_task8/k8s"
     destination = "/home/ubuntu/"
   }
-
+  
+  provisioner "remote-exec" {
+    inline = [
+      "sudo chown -R ubuntu:ubuntu /home/ubuntu/k8s",
+      "ls -al /home/ubuntu/k8s"
+    ]
+  }
   connection {
     type = "ssh"
     user = "ubuntu"
