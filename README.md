@@ -767,82 +767,55 @@ terraform/modules/ec2_instance/scripts/install_postgresql.sh
     sudo systemctl start postgresql
     sudo systemctl enable postgresql
 
-terraform/modules/nat_gateway/main.tf
+terraform/modules/igw/main.tf
 
-    resource "aws_eip" "nat" {
-      domain = "vpc"
-    }
-    
-    resource "aws_nat_gateway" "nat" {
-      allocation_id = aws_eip.nat.id
-      subnet_id     = var.public_subnet_id
+    resource "aws_internet_gateway" "igw" {
+      vpc_id = var.vpc_id
       tags = {
-        Name = "KCVPC-NAT"
+        Name = "KCVPC-IGW"
       }
     }
     
-    resource "aws_route" "private_nat" {
-      route_table_id         = var.private_route_table_id
-      destination_cidr_block = "0.0.0.0/0"
-      nat_gateway_id         = aws_nat_gateway.nat.id
+terraform/modules/igw/outputs.tf
+
+    output "igw_id" {
+      value = aws_internet_gateway.igw.id
     }
 
-terraform/modules/nat_gateway/outputs.tf
+terraform/modules/igw/variables.tf
 
-    output "nat_gateway_id" {
-      value = aws_nat_gateway.nat.id
-    }
-
-terraform/modules/nat_gateway/variables.tf
-
-    variable "public_subnet_id" {
-      description = "ID of the public subnet where the NAT gateway will be created"
+    variable "vpc_id" {
+      description = "ID of the vpc"
       type        = string
     }
-    
-    variable "private_route_table_id" {
-      description = "ID of the private route table to associate with the NAT gateway"
+
+    variable "igw_id" {
+      description = "ID of the internet gateway"
       type        = string
     }
 
 terraform/modules/route_table/main.tf
 
-    resource "aws_route_table" "public" {
+    resource "aws_route_table" "minikube" {
       vpc_id = var.vpc_id
       route {
         cidr_block = "0.0.0.0/0"
         gateway_id = var.igw_id
       }
       tags = {
-        Name = "PublicRouteTable"
+        Name = "MinikubeRouteTable"
       }
     }
-    
-    resource "aws_route_table_association" "public" {
-      subnet_id      = var.public_subnet_id
-      route_table_id = aws_route_table.public.id
-    }
-    
-    resource "aws_route_table" "private" {
-      vpc_id = var.vpc_id
-      tags = {
-        Name = "PrivateRouteTable"
-      }
-    }
-    
-    resource "aws_route_table_association" "private" {
-      subnet_id      = var.private_subnet_id
-      route_table_id = aws_route_table.private.id
+
+    resource "aws_route_table_association" "minikube" {
+      subnet_id      = var.minikube_subnet_id
+      route_table_id = aws_route_table.minikube.id
     }
 
 terraform/modules/route_table/outputs.tf
 
-    output "public_route_table_id" {
-      value = aws_route_table.public.id
-    }
-    
-    output "private_route_table_id" {
-      value = aws_route_table.private.id
+    output "minikube_route_table_id" {
+      value = aws_route_table.minikube.id
     }
 
 terraform/modules/route_table/variables.tf
@@ -851,75 +824,18 @@ terraform/modules/route_table/variables.tf
       description = "ID of the VPC to create route tables in"
       type        = string
     }
-    
+
     variable "igw_id" {
       description = "ID of the Internet Gateway to use for the public route table"
       type        = string
     }
-    
-    variable "public_subnet_id" {
+
+    variable "minikube_subnet_id" {
       description = "ID of the public subnet to associate with the public route table"
       type        = string
     }
     
-    variable "private_subnet_id" {
-      description = "ID of the private subnet to associate with the private route table"
-      type        = string
-    }
-
 terraform/modules/security_group/main.tf
-    
-    resource "aws_security_group" "public_sg" {
-      vpc_id = var.vpc_id
-      name   = "PublicSecurityGroup"
-
-      ingress {
-        from_port   = 80
-        to_port     = 80
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-
-      ingress {
-        from_port   = 443
-        to_port     = 443
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-
-      ingress {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_blocks = [var.public_subnet_cidr]
-      }
-
-      egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-    }
-
-    resource "aws_security_group" "private_sg" {
-      vpc_id = var.vpc_id
-      name   = "PrivateSecurityGroup"
-
-      ingress {
-        from_port   = 5432
-        to_port     = 5432
-        protocol    = "tcp"
-        cidr_blocks = [var.public_subnet_cidr]
-      }
-
-      egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-    }
 
     resource "aws_security_group" "minikube_sg" {
       vpc_id = var.vpc_id
@@ -950,14 +866,6 @@ terraform/modules/security_group/main.tf
 
 terraform/modules/security_group/outputs.tf
 
-    output "public_sg_id" {
-      value = aws_security_group.public_sg.id
-    }
-    
-    output "private_sg_id" {
-      value = aws_security_group.private_sg.id
-    }
-
     output "minikube_sg_id" {
       value = aws_security_group.minikube_sg.id
     }
@@ -968,12 +876,12 @@ terraform/modules/security_group/variables.tf
       description = "ID of the VPC to create security groups in"
       type        = string
     }
-    
-    variable "public_subnet_cidr" {
+
+    variable "minikube_subnet_cidr" {
       description = "CIDR block of the public subnet"
       type        = string
     }
-    
+
     variable "my_ip" {
       description = "Your public IP address for SSH access"
       type        = string
@@ -1010,17 +918,12 @@ terraform/modules/subnet/variables.tf
 
 terraform/modules/vpc/main.tf
 
-    resource "aws_vpc" "main" {
-      cidr_block = var.vpc_cidr
+    resource "aws_subnet" "minikube" {
+      vpc_id            = var.vpc_id
+      cidr_block        = var.minikube_subnet_cidr
+      map_public_ip_on_launch = true
       tags = {
-        Name = "KCVPC"
-      }
-    }
-    
-    resource "aws_internet_gateway" "main" {
-      vpc_id = aws_vpc.main.id
-      tags = {
-        Name = "KCVPC-IGW"
+        Name = "MinikubeSubnet"
       }
     }
 
@@ -1030,10 +933,6 @@ terraform/modules/vpc/outputs.tf
       value = aws_vpc.main.id
     }
     
-    output "igw_id" {
-      value = aws_internet_gateway.main.id
-    }
-
 terraform/modules/vpc/variables.tf
 
     variable "vpc_cidr" {
