@@ -46,10 +46,8 @@ kodecamp_promotional_task8
                  ├── outputs.tf
                  ├── scripts
                      └── install_minikube.sh
-                     └── install_nginx.sh
-                     └── install_postgresql.sh
                  └── variables.tf
-             ├── nat_gateway
+             ├── igw
                  ├── main.tf
                  ├── outputs.tf
                  └── variables.tf
@@ -403,12 +401,10 @@ Create and set up the following directory structure for it:
             ├── ec2_instance
                 └── scripts
                    ├── install_minikube.sh
-                   ├── install_nginx.sh
-                   ├── install_postgresql.sh
                 └── main.tf
                 └── outputs.tf
                 └── variables.tf
-            ├── nat_gateway
+            ├── igw
                 └── main.tf
                 └── outputs.tf
                 └── variables.tf
@@ -436,52 +432,45 @@ terraform/main.tf
       profile = "PrincessKodeCamp"
       region = "eu-west-1"
     }
-    
+
     module "vpc" {
       source   = "./modules/vpc"
       vpc_cidr = "10.0.0.0/16"
     }
-    
+
     module "subnet" {
       source               = "./modules/subnet"
       vpc_id               = module.vpc.vpc_id
-      public_subnet_cidr   = "10.0.1.0/24"
-      private_subnet_cidr  = "10.0.2.0/24"
-      public_subnet_az     = "eu-west-1a"
-      private_subnet_az    = "eu-west-1a"
+      minikube_subnet_cidr   = "10.0.1.0/24"
     }
-    
+
+    module "igw" {
+      source = "./modules/igw"
+      vpc_id              = module.vpc.vpc_id
+      igw_id              = module.igw.igw_id
+    }
+
     module "route_table" {
       source              = "./modules/route_table"
       vpc_id              = module.vpc.vpc_id
-      igw_id              = module.vpc.igw_id
-      public_subnet_id    = module.subnet.public_subnet_id
-      private_subnet_id   = module.subnet.private_subnet_id
+      igw_id              = module.igw.igw_id
+      minikube_subnet_id    = module.subnet.minikube_subnet_id
     }
-    
-    module "nat_gateway" {
-      source                  = "./modules/nat_gateway"
-      public_subnet_id        = module.subnet.public_subnet_id
-      private_route_table_id  = module.route_table.private_route_table_id
-    }
-    
+
     module "security_group" {
       source             = "./modules/security_group"
       vpc_id             = module.vpc.vpc_id
-      public_subnet_cidr = "10.0.1.0/24"
+      minikube_subnet_cidr = "10.0.1.0/24"
       my_ip              = "105.112.114.206" # Run curl ifconfig.me on your terminal or visit https://www.whatismyip.com/
     }
-    
+
     module "ec2_instance" {
       source           = "./modules/ec2_instance"
-      ami              = "ami-"00bf8c84e3af174f6" # Ubuntu Server 22.04 LTS
-      instance_type    = "t2.micro"
-      public_subnet_id = module.subnet.public_subnet_id
-      private_subnet_id = module.subnet.private_subnet_id
-      public_sg_id      = module.security_group.public_sg_id
-      private_sg_id     = module.security_group.private_sg_id
+      ami              = "ami-0932dacac40965a65" # Ubuntu Server
+      instance_type    = "t2.medium"
+      minikube_sg_id    = module.security_group.minikube_sg_id
       key_name           = var.key_name
-      minikube_subnet_id = module.subnet.public_subnet_id # Assuming Minikube is in the public subnet
+      minikube_subnet_id = module.subnet.minikube_subnet_id
       ssh_key_path      = var.ssh_key_path
     }
       
@@ -490,26 +479,15 @@ terraform/outputs.tf
     output "vpc_id" {
       value = module.vpc.vpc_id
     }
-    
-    output "public_subnet_id" {
-      value = module.subnet.public_subnet_id
-    }
-    
-    output "private_subnet_id" {
-      value = module.subnet.private_subnet_id
-    }
-    
-    output "public_instance_id" {
-      value = module.ec2_instance.public_instance_id
-    }
-    
-    output "private_instance_id" {
-      value = module.ec2_instance.private_instance_id
-    }
 
     output "minikube_instance_id" {
       description = "The ID of the Minikube EC2 instance"
       value       = module.ec2_instance.minikube_instance_id
+    }
+
+    output "igw_id" {
+      description = "The ID of the Internet gateway"
+      value       = module.igw.igw_id
     }
 
     output "minikube_instance_public_ip" {
@@ -524,7 +502,7 @@ terraform/variables.tf
       type        = string
       default     = "eu-west-1"
     }
-    
+
     variable "ami" {
       description = "The AMI to use for the instances."
       type        = string
@@ -535,33 +513,23 @@ terraform/variables.tf
       type        = string
     }
 
-    variable "public_subnet_id" {
-      description = "The ID of the public subnet."
-      type        = string
-    }
-
-    variable "private_subnet_id" {
-      description = "The ID of the private subnet."
-      type        = string
-    }
-
-    variable "public_sg_id" {
-      description = "The ID of the public security group."
-      type        = string
-    }
-
-    variable "private_sg_id" {
-      description = "The ID of the private security group."
-      type        = string
-    }
-
     variable "minikube_subnet_id" {
       description = "The ID of the subnet for the Minikube instance."
       type        = string
     }
 
+    variable "vpc_id" {
+      description = "The ID of the vpc."
+      type        = string
+    }
+
+    variable "igw_id" {
+      description = "ID of the internet gateway"
+      type        = string
+    }
+
     variable "ssh_key_path" {
-      description = "The path to the SSH key to use for connecting to the instance."
+      description = "The path to the SSH key for connecting to the instance."
       type        = string
     }
 
@@ -576,10 +544,10 @@ terraform/terraform.tfvars
     aws_region = "eu-west-1"
 
     # AMI ID to use for the EC2 instances
-    ami = "ami-0c38b837cd80f13bb" # Ubuntu Server 22.04 LTS
+    ami = "ami-0932dacac40965a65" # Ubuntu Server
 
     # Instance type for the EC2 instances
-    instance_type = "t2.micro"
+    instance_type = "t2.medium"
 
     # SSH key pair name for EC2 access
     key_name = "KCVPCkeypair1" # Ensure this key pair exists in your AWS account
@@ -587,17 +555,11 @@ terraform/terraform.tfvars
     # Path to the SSH private key file
     ssh_key_path = "C:/Users/HP/.ssh/KCVPCkeypair1.pem" # Update with the actual path to your SSH 
 
-    # Public subnet ID (leave blank if you're creating a new subnet)
-    public_subnet_id = ""
+    # internet gateway ID
+    igw_id = ""
 
-    # Private subnet ID (leave blank if you're creating a new subnet)
-    private_subnet_id = ""
-
-    # Public security group ID (leave blank if you're creating a new security group)
-    public_sg_id = ""
-
-    # Private security group ID (leave blank if you're creating a new security group)
-    private_sg_id = ""
+    # vpc ID
+    vpc_id = ""
 
     # Minikube subnet ID (if different from public_subnet_id)
     minikube_subnet_id = "" # Typically this would be the same as public_subnet_id if Minikube is in the public subnet
@@ -706,29 +668,50 @@ terraform/modules/ec2_instance/variables.tf
 terraform/modules/ec2_instance/scripts/install_minikube.sh
 
     #!/bin/bash
-    sudo apt-get update
+    # Update the system
+    sudo apt-get update -y
+
+    # Install Docker
     sudo apt-get install -y docker.io
-    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-    sudo install minikube-linux-amd64 /usr/local/bin/minikube
-    minikube start --driver=docker --memory=4096 --cpus=2
-    kubectl apply -f /kodecamp_promotional_task8/k8s/deployment.yaml
-    kubectl apply -f /kodecamp_promotional_task8/k8s/service.yaml
-    
-terraform/modules/ec2_instance/scripts/install_nginx.sh
+    sudo systemctl enable docker
+    sudo systemctl start docker
+    sudo usermod -aG docker $USER
 
+    # Install conntrack package (required by Minikube)
+    sudo apt-get install -y conntrack
+
+    # Install Kubectl
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x ./kubectl
+    sudo mv ./kubectl /usr/local/bin/kubectl
+
+    # Install Minikube
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    chmod +x minikube
+    sudo mv minikube /usr/local/bin/
+
+    #___________________________________________________________________________________________________________________________________________________________________________
     #!/bin/bash
-    sudo apt-get update
-    sudo apt-get install -y nginx
-    sudo systemctl start nginx
-    sudo systemctl enable nginx
+    # Update the system
+    # sudo apt-get update -y
 
-terraform/modules/ec2_instance/scripts/install_postgresql.sh
+    # Install Docker
+    # sudo systemctl enable docker
+    # sudo systemctl start docker
+    # sudo usermod -aG docker $USER
 
-    #!/bin/bash
-    sudo apt-get update
-    sudo apt-get install -y postgresql postgresql-contrib
-    sudo systemctl start postgresql
-    sudo systemctl enable postgresql
+    # Install conntrack package (required by Minikube)
+    # sudo apt-get install -y conntrack
+
+    # Install Kubectl
+    # curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+    # chmod +x ./kubectl
+    # sudo mv ./kubectl /usr/local/bin/kubectl
+
+    # Install Minikube
+    # curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    # chmod +x minikube
+    # sudo mv minikube /usr/local/bin/
 
 terraform/modules/igw/main.tf
 
