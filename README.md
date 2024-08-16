@@ -609,68 +609,51 @@ terraform/modules/ec2_instance/main.tf
       include_public_key = true
     }
 
-    resource "aws_instance" "public_instance" {
-      ami                    = var.ami
-      instance_type          = var.instance_type
-      subnet_id              = var.public_subnet_id
-      security_groups         = [var.public_sg_id]
-      associate_public_ip_address = true
-      key_name                    = data.aws_key_pair.key_pair.key_name
-
-      user_data = file("${path.module}/scripts/install_nginx.sh")
-
-      tags = {
-        Name = "PublicInstance"
-      }
-    }
-
-    resource "aws_instance" "private_instance" {
-      ami               = var.ami
-      instance_type     = var.instance_type
-      subnet_id         = var.private_subnet_id
-      security_groups    = [var.private_sg_id]
-      key_name                    = data.aws_key_pair.key_pair.key_name
-
-      user_data = file("${path.module}/scripts/install_postgresql.sh")
-
-      tags = {
-        Name = "PrivateInstance"
-      }
-    }
-
     resource "aws_instance" "minikube" {
-       ami           = var.ami
-       instance_type = var.instance_type
-       subnet_id     = var.minikube_subnet_id
-       security_groups = [var.minikube_sg_id]
-       key_name      = data.aws_key_pair.key_pair.key_name
+      ami           = var.ami
+      instance_type = var.instance_type
+      subnet_id     = var.minikube_subnet_id
+      security_groups = [var.minikube_sg_id]
+      key_name      = data.aws_key_pair.key_pair.key_name
 
-       user_data = file("${path.module}/scripts/install_minikube.sh")
+      tags = {
+        Name = "MinikubeInstance"
+      }
 
-       tags = {
-         Name = "MinikubeInstance"
-       }
+      user_data = file("${path.module}/scripts/install_minikube.sh")
+
+      # provisioner "file" {
+      #   source = file("${path.module}/scripts/install_minikube.sh")
+      #   destination = "/tmp/install_minikube.sh"
+      # }
+
+      # provisioner "remote-exec" {
+      #   inline = [
+      #     "chmod +x /tmp/install_minikube.sh",
+      #     "/tmp/install_minikube.sh"
+      #   ]
+      # }
+
+      provisioner "file" {
+        source = "C:/Users/HP/kodecamp_promotional_task8/k8s"
+        destination = "/home/ubuntu/"
+      }
+  
+      provisioner "remote-exec" {
+        inline = [
+          "sudo chown -R ubuntu:ubuntu /home/ubuntu/k8s",
+          "ls -al /home/ubuntu/k8s"
+        ]
+      }
+      connection {
+        type = "ssh"
+        user = "ubuntu"
+        private_key = file("C:/Users/HP/.ssh/KCVPCkeypair1.pem")
+        host = self.public_ip
+      }
     }
         
 terraform/modules/ec2_instance/outputs.tf
-
-    output "public_instance_id" {
-      value = aws_instance.public_instance.id
-    }
-
-    output "public_instance_public_ip" {
-      description = "The public IP address of the public EC2 instance"
-      value       = aws_instance.public_instance.public_ip
-    }
-
-    output "private_instance_id" {
-      value = aws_instance.private_instance.id
-    }
-
-    output "private_instance_private_ip" {
-      description = "The private IP address of the private EC2 instance"
-      value       = aws_instance.private_instance.private_ip
-    }
 
     output "minikube_instance_id" {
       description = "The ID of the Minikube EC2 instance"
@@ -697,26 +680,6 @@ terraform/modules/ec2_instance/variables.tf
 
     variable "instance_type" {
       description = "Type of EC2 instance to launch"
-      type        = string
-    }
-
-    variable "public_subnet_id" {
-      description = "ID of the public subnet"
-      type        = string
-    }
-
-    variable "private_subnet_id" {
-      description = "ID of the private subnet"
-      type        = string
-    }
-
-    variable "public_sg_id" {
-      description = "ID of the public security group"
-      type        = string
-    }
-
-    variable "private_sg_id" {
-      description = "ID of the private security group"
       type        = string
     }
 
